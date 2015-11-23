@@ -1,7 +1,3 @@
-$(function() {
-	$("#gender").val("全部").change();
-})
-
 var source = [];
 
 $.getJSON("js/raw.json", function(data) {
@@ -10,6 +6,10 @@ $.getJSON("js/raw.json", function(data) {
 	});
 
 	console.log(source.length + " entries collected.");
+
+	$(function() {
+		$("#gender").val("全部").change();
+	})
 
 	$("#gender").change(function() {
 		createGenderChart(source, $("#gender").val());
