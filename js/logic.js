@@ -12,7 +12,7 @@ $.getJSON("js/raw.json", function(data) {
 	})
 
 	$("#gender").change(function() {
-		createGenderChart(source, $("#gender").val());
+		createAgeChart(source, $("#gender").val());
 	})
 
 	function getCounts(data) {
@@ -109,7 +109,7 @@ $.getJSON("js/raw.json", function(data) {
 		});
 	}
 
-	function createGenderChart(source, value) {
+	function createAgeChart(source, value) {
 		var age = [];
 
 		if (value != "") {
