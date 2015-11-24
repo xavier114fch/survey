@@ -276,6 +276,7 @@ $.getJSON("js/raw.json", function(data) {
 		bar.append("rect")
 			.attr("width", 0)
 			.transition()
+			.duration(1000)
 			.attr("width", function(d) {
 				return x(d.value);
 			})
@@ -295,7 +296,12 @@ $.getJSON("js/raw.json", function(data) {
 			.attr("dy", "0.35em")
 			.text(function(d) {
 				return d.value + " (" + (d.value / sample * 100).toFixed(2) + "%)";
-			});
+			})
+			.attr("opacity", 0)
+			.transition()
+			.delay(1000)
+			.duration(1000)
+			.attr("opacity", 1);
 
 		var xAxis = d3.svg.axis()
 			.scale(x, function(d) {
