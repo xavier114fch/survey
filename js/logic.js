@@ -169,7 +169,7 @@ $.getJSON("js/raw.json", function(data) {
 				"pieOuterRadius": "88%"
 			},
 			"data": {
-				"sortOrder": "label-asc",
+				"sortOrder": "value-desc",
 				"smallSegmentGrouping": {
 					"enabled": true,
 					"value": 2,
@@ -202,7 +202,7 @@ $.getJSON("js/raw.json", function(data) {
 					"enabled": true
 				},
 				"truncation": {
-					"enabled": true
+					"enabled": false
 				}
 			},
 			"effects": {
@@ -235,10 +235,19 @@ $.getJSON("js/raw.json", function(data) {
 			value: others
 		});
 
+		temp.sort(function(a, b) {
+			if (a.value < b.value)
+				return 1;
+			if (a.value > b.value)
+				return -1;
+			if (a.value == b.value)
+				return 0;
+		})
+
 		data = temp;
 
 		var	margin = {
-				top: 20,
+				top: 60,
 				right: 20,
 				bottom: 20,
 				left: 120
@@ -263,7 +272,6 @@ $.getJSON("js/raw.json", function(data) {
 		var chart = d3.select(".chart")
 			.attr("width", width + margin.left + margin.right)
 			.attr("height", height + margin.top + margin.bottom)
-			.append("g")
 			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 		var bar = chart.selectAll("g")
@@ -287,10 +295,10 @@ $.getJSON("js/raw.json", function(data) {
 
 		bar.append("text")
 			.attr("class", function(d) {
-				return x(d.value) < 80 ? "blacktext" : "";
+				return x(d.value) < 80 ? "blacktext" : "whitetext";
 			})
 			.attr("x", function(d) {
-				return x(d.value) + (x(d.value) < 80 ? 40 : -45);
+				return x(d.value) + (x(d.value) < 80 ? 30 : -35);
 			})
 			.attr("y", barHeight / 2)
 			.attr("dy", "0.35em")
@@ -307,8 +315,7 @@ $.getJSON("js/raw.json", function(data) {
 			.scale(x, function(d) {
 				return x(d.value);
 			})
-			.orient("bottom")
-			.ticks(8);
+			.orient("bottom");
 
 		var yAxis = d3.svg.axis()
 			.scale(y)
@@ -332,6 +339,12 @@ $.getJSON("js/raw.json", function(data) {
 			.delay(1000)
 			.duration(1000)
 			.attr("opacity", 1);
+
+		chart.append("text")
+			.attr("class", "title")
+			.attr("x", width / 2)
+			.attr("y", 0 - (margin.top / 2))
+			.text(options.titleText);
 
 		console.log("Bar Chart Done");
 	}

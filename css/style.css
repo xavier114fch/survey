@@ -1,16 +1,25 @@
-.chart text, .chart blacktext {
-	fill: white;
-	font: 12px sans-serif;
+.chart text {
 	text-anchor: middle;
+}
+
+.chart text.whitetext {
+	fill: white;
+	font: 10px "open sans";
 }
 
 .chart text.blacktext {
 	fill: black;
+	font: 10px "open sans";
+}
+
+.chart text.title {
+	fill: #333;
+	font: 22px "open sans";
 }
 
 .axis text {
 	fill: black;
-	font: 12px sans-serif;
+	font: 12px "open sans";
 }
 
 .axis path, .axis line {
