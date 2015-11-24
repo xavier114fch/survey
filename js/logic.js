@@ -272,6 +272,7 @@ $.getJSON("js/raw.json", function(data) {
 		var chart = d3.select(".chart")
 			.attr("width", width + margin.left + margin.right)
 			.attr("height", height + margin.top + margin.bottom)
+			.append("g")
 			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 		var bar = chart.selectAll("g")
