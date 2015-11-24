@@ -32,15 +32,15 @@ $.getJSON("js/raw.json", function(data) {
 		if (number != "")
 			switch (number) {
 				case "q1":
-					$("#gender").prop("disabled", "disabled");
-					$("#age").prop("disabled", false);
-					createChart(number, name, false, true);
-					break;
+				$("#gender").prop("disabled", "disabled");
+				$("#age").prop("disabled", false);
+				createChart(number, name, false, true);
+				break;
 				case "q2":
-					$("#gender").prop("disabled", false);
-					$("#age").prop("disabled", "disabled");
-					createChart(number, name, true, false);
-					break;
+				$("#gender").prop("disabled", false);
+				$("#age").prop("disabled", "disabled");
+				createChart(number, name, true, false);
+				break;
 				case "q3":
 				case "q4":
 				case "q5":
@@ -54,38 +54,20 @@ $.getJSON("js/raw.json", function(data) {
 				case "q13":
 				case "q14":
 				case "q15":
-					$("#gender").prop("disabled", false);
-					$("#age").prop("disabled", false);
-					createChart(number, name, true, true);
-					break;
+				$("#gender").prop("disabled", false);
+				$("#age").prop("disabled", false);
+				createChart(number, name, true, true);
+				break;
 			}
 	}
 
-	function getCounts(data) {
-		var counts = {};
-		var arr = [];
-
-		$.each(data, function(i, d) {
-			counts[d] = (counts[d] || 0) + 1;
-		});
-
-		$.each(Object.keys(counts), function(i, d) {
-			arr.push({
-				label: d,
-				value: counts[d]
-			});
-		});
-
-		return arr;
-	}
-
 	function createChart(question, name, isGender, isAge) {
-		var data = [];
-		var result = [];
-		var qnum = question.match(/\d+/)[0];
-		var attribute = "d." + question;
-		var genderFilter = (isGender) ? $("#gender").val() : "全部";
-		var ageFilter = (isAge)? $("#age").val() : "全部";
+		var result = [],
+			data = [],
+			qnum = question.match(/\d+/)[0],
+			attribute = "d." + question,
+			genderFilter = (isGender) ? $("#gender").val() : "全部",
+			ageFilter = (isAge)? $("#age").val() : "全部";
 
 		if (question != "") {
 			if (qnum >= 4 && qnum <= 12) {
@@ -108,9 +90,31 @@ $.getJSON("js/raw.json", function(data) {
 			});
 		}
 
-		if (result.length > 0) {
+		if (qnum == 6 || qnum == 8 || qnum == 10) {
+			var temp = [];
+
+			$.each(result, function(i, d) {
+				d = d.replace("，", ", ");
+				$.each(d.split(", "), function(i, d) {
+					temp.push(d)
+				})
+			});
+
+			result = temp;
+
+			if (result.length > 0) {
+				$("#result").html("");
+				drawBarChart({
+					titleText: name,
+					subtitleText: "",
+					data: getCounts(result),
+					size: data.length
+				});
+			}
+		}
+		else if (result.length > 0) {
 			$("#result").html("");
-			drawChart({
+			drawPieChart({
 				titleText: name,
 				subtitleText: "",
 				data: getCounts(result)
@@ -119,7 +123,25 @@ $.getJSON("js/raw.json", function(data) {
 		else $("#result").html("沒有數據。");
 	}
 
-	function drawChart(options) {
+	function getCounts(data) {
+		var counts = {};
+		var arr = [];
+
+		$.each(data, function(i, d) {
+			counts[d] = (counts[d] || 0) + 1;
+		});
+
+		$.each(Object.keys(counts), function(i, d) {
+			arr.push({
+				label: d,
+				value: counts[d]
+			});
+		});
+
+		return arr;
+	}
+
+	function drawPieChart(options) {
 		var pie = new d3pie("result", {
 			"header": {
 				"title": {
@@ -150,6 +172,7 @@ $.getJSON("js/raw.json", function(data) {
 				"sortOrder": "label-asc",
 				"smallSegmentGrouping": {
 					"enabled": true,
+					"value": 2,
 					"label": "其他"
 				},
 				"content": options.data
@@ -195,26 +218,104 @@ $.getJSON("js/raw.json", function(data) {
 		});
 	}
 
-	function createAgeChart(source, value) {
-		var age = [];
+	function drawBarChart(options) {
+		$("#result").html("<svg class='chart'></svg>");
 
-		if (value != "") {
-			$.each(source, function(i, d) {
-				if (value == "全部")
-					age.push(d.q2);
-				else if (d.q1 == value)
-					age.push(d.q2);
-			});
-		}
+		var data = options.data,
+			sample = options.size,
+			temp = [],
+			others = 0;
 
-		if (age.length > 0) {
-			$("#result").html("");
-			createChart({
-				titleText: "你現在幾多歲？（"　+ value + "）" ,
-				subtitleText: "",
-				data: getCounts(age)
+		$.each(data, function(i, d) {
+			(d.value / sample >= 0.02) ? temp.push(d) : others += d.value;
+		});
+
+		temp.push({
+			label: "其他",
+			value: others
+		});
+
+		data = temp;
+
+		var	margin = {
+				top: 20,
+				right: 20,
+				bottom: 20,
+				left: 120
+			},
+			width = 590 - margin.left - margin.right,
+			barHeight = 35,
+			height = barHeight * data.length,
+			color = d3.scale.category10();
+
+		var x = d3.scale.linear()
+			.domain([0, d3.max(data, function(d) {
+				return d.value;
+			})])
+			.range([0, width]);
+
+		var y = d3.scale.ordinal()
+			.domain(data.map(function(d) {
+				return d.label;
+			}))
+			.rangeRoundBands([0, height], 0);
+
+		var chart = d3.select(".chart")
+			.attr("width", width + margin.left + margin.right)
+			.attr("height", height + margin.top + margin.bottom)
+			.append("g")
+			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+		var bar = chart.selectAll("g")
+			.data(data)
+			.enter().append("g")
+			.attr("transform", function(d, i) {
+				return "translate(0," + i * barHeight + ")";
 			});
-		}
+
+		bar.append("rect")
+			.attr("width", function(d) {
+				return x(d.value);
+			})
+			.attr("height", barHeight - 1)
+			.attr("fill", function(d, i) {
+				return color(i % data.length);
+			});
+
+		bar.append("text")
+			.attr("class", function(d) {
+				return x(d.value) < 80 ? "blacktext" : "";
+			})
+			.attr("x", function(d) {
+				return x(d.value) + (x(d.value) < 80 ? 40 : -45);
+			})
+			.attr("y", barHeight / 2)
+			.attr("dy", "0.35em")
+			.text(function(d) {
+				return d.value + " (" + (d.value / sample * 100).toFixed(2) + "%)";
+			});
+
+		var xAxis = d3.svg.axis()
+			.scale(x, function(d) {
+				return x(d.value);
+			})
+			.orient("bottom")
+			.ticks(8);
+
+		var yAxis = d3.svg.axis()
+			.scale(y)
+			.orient("left");
+
+		chart.append("g")
+			.attr("class", "x axis")
+			.attr("transform", "translate(0," + height + ")")
+			.call(xAxis);
+
+		chart.append("g")
+			.attr("class", "y axis")
+			.call(yAxis);
+
+		console.log("Bar Chart Done");
 	}
 });
 

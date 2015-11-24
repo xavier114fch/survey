@@ -1,0 +1,25 @@
+.chart text, .chart blacktext {
+	fill: white;
+	font: 12px sans-serif;
+	text-anchor: middle;
+}
+
+.chart text.blacktext {
+	fill: black;
+}
+
+.axis text {
+	fill: black;
+	font: 12px sans-serif;
+}
+
+.axis path, .axis line {
+	fill: none;
+	stroke: #000;
+	shape-rendering: crispEdges;
+}
+
+.y.axis path {
+	display: none;
+}
+
