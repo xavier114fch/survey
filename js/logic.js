@@ -274,6 +274,8 @@ $.getJSON("js/raw.json", function(data) {
 			});
 
 		bar.append("rect")
+			.attr("width", 0)
+			.transition()
 			.attr("width", function(d) {
 				return x(d.value);
 			})
