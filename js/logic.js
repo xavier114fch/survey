@@ -1,6 +1,6 @@
-var source = [];
-
 $.getJSON("js/raw.json", function(data) {
+	var source = [];
+
 	$.each(data, function(i, d) {
 		source.push(d);
 	});
@@ -8,12 +8,58 @@ $.getJSON("js/raw.json", function(data) {
 	console.log(source.length + " entries collected.");
 
 	$(function() {
-		$("#gender").val("全部").change();
-	})
+		$("#questions").val("q1");
+		parseQuestions("q1");
+	});
+
+	$("#questions").change(function() {
+		$("#gender").val("全部");
+		$("#age").val("全部");
+		parseQuestions($("#questions").val());
+	});
 
 	$("#gender").change(function() {
-		createAgeChart(source, $("#gender").val());
+		parseQuestions($("#questions").val());
 	})
+
+	$("#age").change(function() {
+		parseQuestions($("#questions").val());
+	})
+
+	function parseQuestions(number) {
+		var name = $("#questions option:selected").text();
+
+		if (number != "")
+			switch (number) {
+				case "q1":
+					$("#gender").prop("disabled", "disabled");
+					$("#age").prop("disabled", false);
+					createChart(number, name, false, true);
+					break;
+				case "q2":
+					$("#gender").prop("disabled", false);
+					$("#age").prop("disabled", "disabled");
+					createChart(number, name, true, false);
+					break;
+				case "q3":
+				case "q4":
+				case "q5":
+				case "q6":
+				case "q7":
+				case "q8":
+				case "q9":
+				case "q10":
+				case "q11":
+				case "q12":
+				case "q13":
+				case "q14":
+				case "q15":
+					$("#gender").prop("disabled", false);
+					$("#age").prop("disabled", false);
+					createChart(number, name, true, true);
+					break;
+			}
+	}
 
 	function getCounts(data) {
 		var counts = {};
@@ -33,7 +79,47 @@ $.getJSON("js/raw.json", function(data) {
 		return arr;
 	}
 
-	function createChart(options) {
+	function createChart(question, name, isGender, isAge) {
+		var data = [];
+		var result = [];
+		var qnum = question.match(/\d+/)[0];
+		var attribute = "d." + question;
+		var genderFilter = (isGender) ? $("#gender").val() : "全部";
+		var ageFilter = (isAge)? $("#age").val() : "全部";
+
+		if (question != "") {
+			if (qnum >= 4 && qnum <= 12) {
+				$.each(source, function(i, d) {
+					if (d.q3 == "有")
+						data.push(d);
+				});
+			} 
+			else data = source;
+
+			$.each(data, function(i, d) {
+				if (d.q1 == genderFilter && d.q2 == ageFilter)
+					result.push(eval(attribute));
+				else if (d.q1 == genderFilter && ageFilter == "全部")
+					result.push(eval(attribute));
+				else if (genderFilter == "全部" && d.q2 == ageFilter)
+					result.push(eval(attribute));
+				else if (genderFilter == "全部" && ageFilter == "全部")
+					result.push(eval(attribute));
+			});
+		}
+
+		if (result.length > 0) {
+			$("#result").html("");
+			drawChart({
+				titleText: name,
+				subtitleText: "",
+				data: getCounts(result)
+			});
+		}
+		else $("#result").html("沒有數據。");
+	}
+
+	function drawChart(options) {
 		var pie = new d3pie("result", {
 			"header": {
 				"title": {
