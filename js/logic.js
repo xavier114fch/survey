@@ -317,11 +317,21 @@ $.getJSON("js/raw.json", function(data) {
 		chart.append("g")
 			.attr("class", "x axis")
 			.attr("transform", "translate(0," + height + ")")
-			.call(xAxis);
+			.attr("opacity", 0)
+			.call(xAxis)
+			.transition()
+			.delay(1000)
+			.duration(1000)
+			.attr("opacity", 1);
 
 		chart.append("g")
 			.attr("class", "y axis")
-			.call(yAxis);
+			.attr("opacity", 0)
+			.call(yAxis)
+			.transition()
+			.delay(1000)
+			.duration(1000)
+			.attr("opacity", 1);
 
 		console.log("Bar Chart Done");
 	}
