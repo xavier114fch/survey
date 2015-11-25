@@ -142,6 +142,9 @@ $.getJSON("js/raw.json", function(data) {
 	}
 
 	function drawPieChart(options) {
+		var canvasHeight = 400,
+			canvasWidth = 590;
+
 		var pie = new d3pie("result", {
 			"header": {
 				"title": {
@@ -164,8 +167,8 @@ $.getJSON("js/raw.json", function(data) {
 				"location": "bottom-center"
 			},
 			"size": {
-				"canvasHeight": 400,
-				"canvasWidth": 590,
+				"canvasHeight": canvasHeight,
+				"canvasWidth": canvasWidth,
 				"pieOuterRadius": "88%"
 			},
 			"data": {
@@ -216,6 +219,10 @@ $.getJSON("js/raw.json", function(data) {
 				}
 			}
 		});
+
+	var svg = d3.select("svg")
+		.attr("preserveAspectRatio", "xMinYMin meet")
+		.attr("viewBox", "0 0 " + canvasWidth + " " + canvasHeight);
 	}
 
 	function drawBarChart(options) {
